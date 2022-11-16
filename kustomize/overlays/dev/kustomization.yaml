@@ -1,0 +1,36 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+bases:
+- ../../base
+images:
+- name: gcr.io/google-samples/hello-app
+  newName: gcr.io/google-samples/hello-app
+  newTag: "2.0"
+replicas: 
+- name: hello-app
+  count: 3
+configMapGenerator:
+- name: db-config
+  literals: 
+  - db_uri="domain.example.es"
+  - db_name="users"
+  options:
+    disableNameSuffixHash: true
+secretGenerator:
+- name: key
+  files:
+  - key
+  type: Opaque
+  options:
+    disableNameSuffixHash: true
+patchesStrategicMerge:
+ - deployment.yaml
+helmChartInflationGenerator:
+- chartName: mongodb
+  chartRepoUrl: https://charts.bitnami.com/bitnami
+  #chartVersion: 6.0.2
+  releaseNamespace: default
+  releaseName: my-mongodb
+  #valuesFile: values.yaml
+
+
